@@ -48,6 +48,19 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     this.setPageTitle();
   }
 
+  submitForm(){
+    this.submittingForm = true;
+
+    if(this.currentAction == "new")
+      this.createCategory();
+    else
+      this.updateCategory();
+  }
+
+
+
+
+
 
   //PRIVATE METHODS
   private setCurrentAction(){
@@ -63,7 +76,7 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     //construindo o formulário da categoria
     this.categoryForm = this.formBuilder.group({
       id: [null],
-      name: [null, [Validators.required, Validators.maxLength(2)]],
+      nome: [null, [Validators.required, Validators.minLength(2)]],
       description: [null]
     });
   }
@@ -93,4 +106,45 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
       
   }
 
+  //object assing atribui os valores do categoryForm para o novo obj ategory criado
+  //metodos para tratar o retorno criado de forma que podem ser reaproveitados tanto em update quando e create
+  private createCategory(){
+    const category: Category = Object.assign(new Category(), this.categoryForm.value);
+    this.categoryService.create(category)
+      .subscribe(
+        category => this.actionsForSuccess(category),
+        error => this.actionsForError(error)
+      )
+  }
+
+  private updateCategory(){
+    const category: Category = Object.assign(new Category(), this.categoryForm.value);
+    this.categoryService.update(category)
+      .subscribe(
+        category => this.actionsForSuccess(category),
+        error => this.actionsForError(error)
+      )
+  }
+
+  //redirect/reload component page
+   //Forçar um recarregamento utilizando um redirecionamento para voltar ao form(de categories/new para / e depois para /:id/edit, co o id da categor criada)
+    //de forma trasparente no qual o usário não irá perceber
+    //skipLocationsChange evita que o navegador salve a rota navegada, impossibilitando do usuário apertar e voltar e ir ná página não desejada no redirecionamento
+  private actionsForSuccess(category :Category){
+    toastr.success("Solicitação processada com sucesso!");
+   
+    this.router.navigateByUrl("categories", {skipLocationChange: true}).then(
+      () => this.router.navigate(["categories", category.id, "edit"])
+    )
+  }
+
+  private actionsForError(error:any){
+    toastr.error("Ocorreu um erro ao processar a sua solicitação!");
+    this.submittingForm = false;
+    
+    if(error.status === 422)//servidor processou mas deu algum erro de validação
+      this.serverErrorMessages = JSON.parse(error._body).errors;
+    else //erro de comunicação
+      this.serverErrorMessages = ["Falha na comunicação com o servidor, por favor tente mais tarde."];
+  }
 }
