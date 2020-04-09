@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http"
 import { Observable, throwError } from "rxjs"
 import { map, catchError, flatMap } from "rxjs/operators"
 import { Entry } from "./entry.model"
+import { element } from 'protractor';
 
 @Injectable({
   providedIn: 'root'
@@ -54,12 +55,15 @@ export class EntryService {
 
   private jsonDataToEntries(jsonData: any[]): Entry[]{
     const entries: Entry[] = [];
-    jsonData.forEach(elemento => entries.push(elemento as Entry));
+    jsonData.forEach(elemento => {
+      const entry = Object.assign(new Entry(), elemento);
+      entries.push(entry);
+    });
     return entries;
   }
 
   private jsonDataToEntry(jsonData: any): Entry{
-    return jsonData as Entry;
+    return Object.assign(new Entry(), jsonData);
   }
 
   private handleError(error: any): Observable<any>{
