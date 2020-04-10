@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Category } from '../shared/category.model';
 import { CategoryService } from '../shared/category.service';
 
-import { switchMap } from "rxjs/operators"; //para poder manipular a rota quando estiver trabalhando com activatedroute
+import { switchMap } from "rxjs/operators"; 
 
 import toastr from "toastr";
 
@@ -18,15 +18,10 @@ import toastr from "toastr";
 })
 export class CategoryFormComponent implements OnInit, AfterContentChecked {
 
-  //variável para informar se esta editando ou criando um novo recurso
   currentAction: string;
-  //formulario
   categoryForm: FormGroup;
-  //título dinâmico
   pageTitle: string;
-  //mensagens retornadas do servidor caso ocorra algum erro
   serverErrorMessages: string[] =  null;
-  //var bool para desabilitar o botão de submit após ele ser clicado uma vez, evitando várias requisições, voltando a ser habilitado após a resposta do servidor
   submittingForm: boolean = false;
   category: Category = new Category();
 
@@ -42,9 +37,8 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     this.buildCategoryForm();
     this.loadCategory();
   }
-//método que é ionvocado apśo todas as diretivas terem sido carregadas, isso garente setar valores com as entidades já carregadas antes da renderização
+
   ngAfterContentChecked(){
-    //método para setar o título da página
     this.setPageTitle();
   }
 
@@ -58,13 +52,8 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
   }
 
 
-
-
-
-
   //PRIVATE METHODS
   private setCurrentAction(){
-    //verificando a rota para saber se a pessoa está editando ou não
     if(this.route.snapshot.url[0].path == "new"){
       this.currentAction = "new";
     }else {
@@ -73,7 +62,6 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
   }
 
   private buildCategoryForm(){
-    //construindo o formulário da categoria
     this.categoryForm = this.formBuilder.group({
       id: [null],
       nome: [null, [Validators.required, Validators.minLength(2)]],
@@ -89,7 +77,7 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
       .subscribe(
         (category) => {
           this.category = category;
-          this.categoryForm.patchValue(category); //bind a categoria carregada no formulário
+          this.categoryForm.patchValue(category);
         },
         (error) => alert('Ocorreu um erro no servidor, tente mais tared')
       );
@@ -100,14 +88,12 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     if(this.currentAction == "new")
       this.pageTitle = "Cadastro de nova Categoria";
     else{
-      const categoryName = this.category.nome || ""; // na primera vez que o content check tentar setar o titulo da página, provavelmete a cat n vai estar carregada aidna
+      const categoryName = this.category.nome || "";
       this.pageTitle = "Editando Categoria: "+ categoryName;
     }
       
   }
 
-  //object assing atribui os valores do categoryForm para o novo obj ategory criado
-  //metodos para tratar o retorno criado de forma que podem ser reaproveitados tanto em update quando e create
   private createCategory(){
     const category: Category = Object.assign(new Category(), this.categoryForm.value);
     this.categoryService.create(category)
@@ -126,10 +112,6 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
       )
   }
 
-  //redirect/reload component page
-   //Forçar um recarregamento utilizando um redirecionamento para voltar ao form(de categories/new para / e depois para /:id/edit, co o id da categor criada)
-    //de forma trasparente no qual o usário não irá perceber
-    //skipLocationsChange evita que o navegador salve a rota navegada, impossibilitando do usuário apertar e voltar e ir ná página não desejada no redirecionamento
   private actionsForSuccess(category :Category){
     toastr.success("Solicitação processada com sucesso!");
    
