@@ -1,1 +1,21 @@
-<p>bread-crumb works!</p>
+<nav class="mb-5">
+    <ol class="breadcrumb">
+        <!--parte fixa do bread crumb, n qual nunca muda, pois sempre a 1 opção é o home-->
+        <li class="breadcrumb-item">
+            <a routerLink="/">Home</a>
+        </li>
+
+         <!--o link só exibido nos itens que não é o último-->
+        <li *ngFor="let item of itens" class="breadcrumb-item" [class.active]="isTheLastItem(item)">
+            <span *ngIf="isTheLastItem(item)">
+                {{item.text}}
+            </span>
+            
+            <a *ngIf="!isTheLastItem(item)" [routerLink]="item.link">
+                {{item.text}}
+            </a>
+        </li>
+
+    </ol>
+</nav>
+
